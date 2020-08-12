@@ -1,5 +1,5 @@
 // Start Long Poll
-require('./longPoll');
+// require('./longPoll');
 // Datas
 var keys = require('./keys/index');
 var categories = require('./categories');
@@ -63,4 +63,6 @@ bot.on(function (ctx) {
         }
     });
 });
-bot.startPolling();
+bot.startPolling(function (e) {
+    console.log(e);
+});

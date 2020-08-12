@@ -1,5 +1,5 @@
 // Start Long Poll
-require('./longPoll');
+// require('./longPoll');
 
 // Datas
 const keys = require('./keys/index');
