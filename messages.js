@@ -11,9 +11,9 @@ module.exports = {
     IS_CORRECT_PHONE: phone => `Этот номер еще актуален ${phone} ?`,
     GET_CORRECT_PHONE: 'Укажите номер.',
     WE_WILL_CALL: 'Спасибо за заявку, мы Вам скоро перезвоним. :)',
-    WANT_RESTART: 'Хотите начать сначала? :)',
+    WANT_RESTART: 'У Вас еще остались вопросы? :)',
     GOOD_DAY: 'Хорошего дня!',
-    WANT_NOT_WANT: ['Хочу', 'Не хочу'],
+    I_HAVE_QUESTION: 'У меня есть вопрос',
     YES_NOT: ['Да', 'Нет'],
     CATEGORIES: [
         'Ремонт окон',

@@ -11,8 +11,14 @@ const Markup = require('node-vk-bot-api/lib/markup');
 const VkBot = require('node-vk-bot-api');
 const bot = new VkBot(keys.TOKEN);
 
+// Redis-Session
+const RedisSession = require('node-vk-bot-api-session-redis/lib/session');
+const session = new RedisSession();
+bot.use(session.middleware());
+
 // Start command with Inline-Keyboard
 const startKeyBoard = ctx => {
+  ctx.session.step = null;
   ctx.reply(messages.ON_START, null, Markup
     .keyboard(messages.CATEGORIES, { columns: 2 })
     .inline(),
@@ -20,11 +26,7 @@ const startKeyBoard = ctx => {
 };
 
 bot.command(messages.START_CMD, startKeyBoard);
-
-// Redis-Session
-const RedisSession = require('node-vk-bot-api-session-redis/lib/session');
-const session = new RedisSession();
-bot.use(session.middleware());
+bot.command(messages.I_HAVE_QUESTION, startKeyBoard);
 
 // API
 const api = require('node-vk-bot-api/lib/api');
@@ -33,7 +35,12 @@ bot.on(async ctx => {
   const [user_id, message]: Array<String> = [ctx.message.user_id, ctx.message.body];
   const isCategories: Boolean = messages.CATEGORIES.filter(name => name === message).length !== 0;
 
+  // Выбрана категория в самом начале
   if (isCategories) {
+    // Выбор категории, запоминание имени, запрос номера
+    ctx.session.step = 1;
+
+    // Не введено имя, человек обратился впервые
     if (!ctx.session.name) {
       const params: Object = {
         user_ids: user_id,
@@ -51,76 +58,128 @@ bot.on(async ctx => {
           ctx.reply(messages.GET_PHONE(name));
           ctx.session.target = message;
           ctx.session.name = name;
+          ctx.session.step = 2;
         });  
     } else {
+      // Есть имя и даже телефон, человек обращается повторно
       if (ctx.session.phone) {
+        // Ввод актуального номера
         ctx.reply(messages.IS_CORRECT_PHONE(ctx.session.phone), null, Markup
           .keyboard(messages.YES_NOT, { columns: 2 })
           .inline(),
-        );  
+        );
         ctx.session.target = message;
       };
     };
   } else {
-    if (messages.WANT_NOT_WANT.filter(name => name === message).length !== 0) {
-      if (message === 'Хочу') {
-        return startKeyBoard(ctx);
-      } else {
-        return ctx.reply(messages.GOOD_DAY);
-      };
+    // Какой-то текст, не из категорий
+
+    // Нужен этап, первый, когда мы запрашиваем номер и в конце, даем возможность вернуться в начало
+    if (!ctx.session.step) {
+      return;
     };
 
-    const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
-    if (isYesOrNot || require('validator').isMobilePhone(message)) {
-      if (!isYesOrNot) {
-        ctx.reply(messages.END);
-        ctx.session.phone = message;
-      } else {
-        if (message === 'Нет') {
-          return ctx.reply(messages.GET_CORRECT_PHONE);
+    // if (ctx.session.step === 3) {
+    //   // Остались вопросы?
+    //   if (messages.YES_NOT.filter(name => name === message).length !== 0) {
+    //     if (message === 'Да') {
+    //       return startKeyBoard(ctx);
+    //     } else {
+    //       // Хорошего дня, закрыли сессию
+    //       return closeSession(ctx);
+    //     };
+    //   };
+    // } else {
+      // Актуальный номер телефона или нет
+      const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
+      // Да/Нет (актуальность), либо был введен номер телефона
+      if (isYesOrNot || require('validator').isMobilePhone(message)) {
+        // Введен номер
+        if (!isYesOrNot) {
+          if (ctx.session.step !== 2) {
+            return;
+          };
+
+          // Говорим спасибо, сохраняем номер
+          // ctx.reply(messages.END);
+          ctx.session.phone = message;
+          // ctx.session.step = null;
+          closeSession(ctx, messages.END);
         } else {
-          ctx.reply(messages.WE_WILL_CALL);
-          startKeyBoard(ctx);
+          // if (message !== 'Нет') {
+          //   return;
+          // };
+
+          // Актуальность номера
+          if (message === 'Нет') {
+            // Просим ввести актуальный номер
+            ctx.session.step = 2;
+            return ctx.reply(messages.GET_CORRECT_PHONE);
+          } else {
+            if (!ctx.session.phone || ctx.session.step === 2) {
+              return ctx.reply(messages.GET_CORRECT_PHONE);
+            };
+
+            // Благодарим за номер, закрыли сессию
+            // ctx.reply(messages.WE_WILL_CALL);
+            closeSession(ctx, messages.WE_WILL_CALL);
+          };
         };
-      };
 
-      ctx.session.url = `https://vk.com/id${user_id}`;
+        ctx.session.url = `https://vk.com/id${user_id}`;
 
-      const {url, name, phone, target} = ctx.session;
+        const {url, name, phone, target} = ctx.session;
 
-      // Get Admins
-      require('./admins')()
-        .catch(e => console.error(e))
-        .then(admins => {
-          if (!admins) {
-            return console.log(messages.CANT_GET_ADMINS(phone, url));
-          };
-          
-          // Choose the method depending on the number of people
-          const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
-          const params: Object = {
-            [ids_method]: admins,
-            random_id: Math.ceil(Math.random() * 1000 + 1),
-            message: messages.MSG_TO_MANAGER(url, name, phone, target),
-            access_token: keys.TOKEN,
-          };
+        // Get Admins
+        require('./admins')()
+          .catch(e => console.error(e))
+          .then(admins => {
+            if (!admins) {
+              return console.log(messages.CANT_GET_ADMINS(phone, url));
+            };
+            
+            // Choose the method depending on the number of people
+            const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
+            const params: Object = {
+              [ids_method]: admins,
+              random_id: Math.ceil(Math.random() * 1000 + 1),
+              message: messages.MSG_TO_MANAGER(url, name, phone, target),
+              access_token: keys.TOKEN,
+            };
 
-          api('messages.send', params)
-            .catch(e => {
-              console.error(e);
-              ctx.reply(messages.FAIL);
-            })
-            .then(res => console.log(messages.CONSOLE_END));
-        });
+            api('messages.send', params)
+              .catch(e => {
+                console.error(e);
+                ctx.reply(messages.FAIL);
+              })
+              .then(res => console.log(messages.CONSOLE_END));
+          });
 
-        ctx.reply(messages.WANT_RESTART, null, Markup
-          .keyboard(messages.WANT_NOT_WANT, { columns: 2 })
-          .inline(),
-        );  
-    } else {
-      return ctx.reply(messages.INCORRECT_PHONE);
-    };  
+          // ctx.reply(messages.WANT_RESTART, null, Markup
+          //   .keyboard(messages.YES_NOT, { columns: 2 })
+          //   .inline(),
+          // );
+
+          // ctx.session.step = 3;
+      } else {
+        if (ctx.session.step !== 2) {
+          return;
+        };
+
+        return ctx.reply(messages.INCORRECT_PHONE);
+      };  
+    // };
   };
 });
+
+const closeSession = (ctx: any, msg?: String) => {
+  ctx.session.step = null;
+
+  // Оставляем клавиатуру на будущее
+  ctx.reply(msg || messages.GOOD_DAY, null, Markup
+    .keyboard([messages.I_HAVE_QUESTION])
+    .oneTime(),
+  );
+};
 
 bot.startPolling();
