@@ -79,96 +79,70 @@ bot.on(async ctx => {
       return;
     };
 
-    // if (ctx.session.step === 3) {
-    //   // Остались вопросы?
-    //   if (messages.YES_NOT.filter(name => name === message).length !== 0) {
-    //     if (message === 'Да') {
-    //       return startKeyBoard(ctx);
-    //     } else {
-    //       // Хорошего дня, закрыли сессию
-    //       return closeSession(ctx);
-    //     };
-    //   };
-    // } else {
-      // Актуальный номер телефона или нет
-      const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
-      // Да/Нет (актуальность), либо был введен номер телефона
-      if (isYesOrNot || require('validator').isMobilePhone(message)) {
-        // Введен номер
-        if (!isYesOrNot) {
-          if (ctx.session.step !== 2) {
-            return;
-          };
-
-          // Говорим спасибо, сохраняем номер
-          // ctx.reply(messages.END);
-          ctx.session.phone = message;
-          // ctx.session.step = null;
-          closeSession(ctx, messages.END);
-        } else {
-          // if (message !== 'Нет') {
-          //   return;
-          // };
-
-          // Актуальность номера
-          if (message === 'Нет') {
-            // Просим ввести актуальный номер
-            ctx.session.step = 2;
-            return ctx.reply(messages.GET_CORRECT_PHONE);
-          } else {
-            if (!ctx.session.phone || ctx.session.step === 2) {
-              return ctx.reply(messages.GET_CORRECT_PHONE);
-            };
-
-            // Благодарим за номер, закрыли сессию
-            // ctx.reply(messages.WE_WILL_CALL);
-            closeSession(ctx, messages.WE_WILL_CALL);
-          };
-        };
-
-        ctx.session.url = `https://vk.com/id${user_id}`;
-
-        const {url, name, phone, target} = ctx.session;
-
-        // Get Admins
-        require('./admins')()
-          .catch(e => console.error(e))
-          .then(admins => {
-            if (!admins) {
-              return console.log(messages.CANT_GET_ADMINS(phone, url));
-            };
-            
-            // Choose the method depending on the number of people
-            const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
-            const params: Object = {
-              [ids_method]: admins,
-              random_id: Math.ceil(Math.random() * 1000 + 1),
-              message: messages.MSG_TO_MANAGER(url, name, phone, target),
-              access_token: keys.TOKEN,
-            };
-
-            api('messages.send', params)
-              .catch(e => {
-                console.error(e);
-                ctx.reply(messages.FAIL);
-              })
-              .then(res => console.log(messages.CONSOLE_END));
-          });
-
-          // ctx.reply(messages.WANT_RESTART, null, Markup
-          //   .keyboard(messages.YES_NOT, { columns: 2 })
-          //   .inline(),
-          // );
-
-          // ctx.session.step = 3;
-      } else {
+    // Актуальный номер телефона или нет
+    const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
+    // Да/Нет (актуальность), либо был введен номер телефона
+    if (isYesOrNot || require('validator').isMobilePhone(message)) {
+      // Введен номер
+      if (!isYesOrNot) {
         if (ctx.session.step !== 2) {
           return;
         };
 
-        return ctx.reply(messages.INCORRECT_PHONE);
-      };  
-    // };
+        // Говорим спасибо, сохраняем номер
+        ctx.session.phone = message;
+        closeSession(ctx, messages.END);
+      } else {
+        // Актуальность номера
+        if (message === 'Нет') {
+          // Просим ввести актуальный номер
+          ctx.session.step = 2;
+          return ctx.reply(messages.GET_CORRECT_PHONE);
+        } else {
+          if (!ctx.session.phone || ctx.session.step === 2) {
+            return ctx.reply(messages.GET_CORRECT_PHONE);
+          };
+
+          // Благодарим за номер, закрыли сессию
+          closeSession(ctx, messages.WE_WILL_CALL);
+        };
+      };
+
+      ctx.session.url = `https://vk.com/id${user_id}`;
+
+      const {url, name, phone, target} = ctx.session;
+
+      // Get Admins
+      require('./admins')()
+        .catch(e => console.error(e))
+        .then(admins => {
+          if (!admins) {
+            return console.log(messages.CANT_GET_ADMINS(phone, url));
+          };
+          
+          // Choose the method depending on the number of people
+          const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
+          const params: Object = {
+            [ids_method]: admins,
+            random_id: Math.ceil(Math.random() * 1000 + 1),
+            message: messages.MSG_TO_MANAGER(url, name, phone, target),
+            access_token: keys.TOKEN,
+          };
+
+          api('messages.send', params)
+            .catch(e => {
+              console.error(e);
+              ctx.reply(messages.FAIL);
+            })
+            .then(res => console.log(messages.CONSOLE_END));
+        });
+    } else {
+      if (ctx.session.step !== 2) {
+        return;
+      };
+
+      return ctx.reply(messages.INCORRECT_PHONE);
+    };  
   };
 });
 
