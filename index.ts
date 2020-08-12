@@ -1,20 +1,17 @@
-// Start Long Poll
-// require('./longPoll');
-
 // Datas
 const keys = require('./keys/index');
 const categories = require('./categories');
 
 // MSG
-const FAIL_MSG: string = 'Извините, произошла ошибка. Попробуйте еще раз.';
+const messages = require('./messages');
 
 // Create bot
 const VkBot = require('node-vk-bot-api');
 const bot = new VkBot(keys.TOKEN);
 
 // Start command with Inline-Keyboard
-bot.command('Начать', ctx => {
-  ctx.reply('Что Вас интересует?', null, require('node-vk-bot-api/lib/markup')
+bot.command(messages.START_CMD, ctx => {
+  ctx.reply(messages.ON_START, null, require('node-vk-bot-api/lib/markup')
     .keyboard(categories, { columns: 2 })
     .inline(),
   );
@@ -30,48 +27,69 @@ const api = require('node-vk-bot-api/lib/api');
 
 bot.on(ctx => {
   const [user_id, message]: Array<String> = [ctx.message.user_id, ctx.message.body];
-  const isCat: Boolean = categories.filter(name => name === message).length !== 0;
+  const isCategories: Boolean = categories.filter(name => name === message).length !== 0;
 
-  api('users.get', {
+  const params: Object = {
     user_ids: user_id,
     fields: 'first_name',
     access_token: keys.TOKEN,
-  }).catch(e => {
-    console.error(e);
-    ctx.reply(FAIL_MSG);
-  }).then(res => {
-    if (isCat && ctx.session.name) {
-      ctx.session.name = null;
-    }
+  };
 
-    if (!ctx.session.name) {
-      if (isCat) {
-        const name: String = res.response[0].first_name;
-        ctx.reply(`Спасибо, ${name}. Оставьте Ваш номер телефона для связи. :)`);
-        ctx.session.target = message;
-        ctx.session.name = name;
-      }
-    } else {
-      if (require('validator').isMobilePhone(message)) {
-        ctx.reply(`Спасибо за номер телефона. :)`);
+  api('users.get', params)
+    .catch(e => {
+      console.error(e);
+      ctx.reply(messages.FAIL);
+    })
+    .then(res => {
+      if (isCategories && ctx.session.name) {
+        ctx.session.name = null;
+      };
 
-        ctx.session.phone = message;
-        ctx.session.url = `https://vk.com/id${user_id}`;
-
-        api('messages.send', {
-          user_ids: keys.ADMINS_ID,
-          random_id: Math.ceil(Math.random() * 1000 + 1),
-          message: `Новая заявка от ${ctx.session.url}: ${ctx.session.name}, ${ctx.session.phone}; Интересуется: ${ctx.session.target}`,
-          access_token: keys.TOKEN,
-        }).catch(e => {
-          console.error(e);
-          ctx.reply(FAIL_MSG);
-        }).then(res => console.log('Заявка отправлена'));
+      if (!ctx.session.name) {
+        if (isCategories) {
+          const name: String = res.response[0].first_name;
+          ctx.reply(messages.GET_PHONE(name));
+          ctx.session.target = message;
+          ctx.session.name = name;
+        };
       } else {
-        ctx.reply('Введите корректный номер телефона.');
-      }
-    }
-  });
+        if (require('validator').isMobilePhone(message)) {
+          ctx.reply(messages.END);
+
+          ctx.session.phone = message;
+          ctx.session.url = `https://vk.com/id${user_id}`;
+
+          const {url, name, phone, target} = ctx.session;
+
+          // Get Admins
+          require('./admins')()
+            .catch(e => console.error(e))
+            .then(admins => {
+              if (!admins) {
+                return console.log(messages.CANT_GET_ADMINS(phone, url));
+              };
+              
+              // Choose the method depending on the number of people
+              const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
+              const params: Object = {
+                [ids_method]: admins,
+                random_id: Math.ceil(Math.random() * 1000 + 1),
+                message: messages.MSG_TO_MANAGER(url, name, phone, target),
+                access_token: keys.TOKEN,
+              };
+    
+              api('messages.send', params)
+                .catch(e => {
+                  console.error(e);
+                  ctx.reply(messages.FAIL);
+                })
+                .then(res => console.log(messages.CONSOLE_END));
+            });
+        } else {
+          ctx.reply(messages.INCORRECT_PHONE);
+        };
+      };
+    });
 });
 
 bot.startPolling();
