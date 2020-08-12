@@ -12,12 +12,14 @@ const VkBot = require('node-vk-bot-api');
 const bot = new VkBot(keys.TOKEN);
 
 // Start command with Inline-Keyboard
-bot.command(messages.START_CMD, ctx => {
+const startKeyBoard = ctx => {
   ctx.reply(messages.ON_START, null, Markup
     .keyboard(messages.CATEGORIES, { columns: 2 })
     .inline(),
   );
-});
+};
+
+bot.command(messages.START_CMD, startKeyBoard);
 
 // Redis-Session
 const RedisSession = require('node-vk-bot-api-session-redis/lib/session');
@@ -45,16 +47,10 @@ bot.on(async ctx => {
           ctx.reply(messages.FAIL);
         })
         .then(res => {
-          if (isCategories) {
-            if (ctx.session.name) {
-              ctx.session.name = null;
-            };
-  
-            const name: String = res.response[0].first_name;
-            ctx.reply(messages.GET_PHONE(name));
-            ctx.session.target = message;
-            ctx.session.name = name;
-          };
+          const name: String = res.response[0].first_name;
+          ctx.reply(messages.GET_PHONE(name));
+          ctx.session.target = message;
+          ctx.session.name = name;
         });  
     } else {
       if (ctx.session.phone) {
@@ -62,23 +58,31 @@ bot.on(async ctx => {
           .keyboard(messages.YES_NOT, { columns: 2 })
           .inline(),
         );  
+        ctx.session.target = message;
       };
     };
   } else {
-    const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
-    if (isYesOrNot) {
-      if (message === 'Нет') {
-        return ctx.reply(messages.GET_CORRECT_PHONE);
-      }
+    if (messages.WANT_NOT_WANT.filter(name => name === message).length !== 0) {
+      if (message === 'Хочу') {
+        return startKeyBoard(ctx);
+      } else {
+        return ctx.reply(messages.GOOD_DAY);
+      };
     };
-    
+
+    const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
     if (isYesOrNot || require('validator').isMobilePhone(message)) {
       if (!isYesOrNot) {
         ctx.reply(messages.END);
         ctx.session.phone = message;
       } else {
-        ctx.reply(messages.WE_WILL_CALL);
-      }
+        if (message === 'Нет') {
+          return ctx.reply(messages.GET_CORRECT_PHONE);
+        } else {
+          ctx.reply(messages.WE_WILL_CALL);
+          startKeyBoard(ctx);
+        };
+      };
 
       ctx.session.url = `https://vk.com/id${user_id}`;
 
@@ -114,7 +118,7 @@ bot.on(async ctx => {
           .inline(),
         );  
     } else {
-      ctx.reply(messages.INCORRECT_PHONE);
+      return ctx.reply(messages.INCORRECT_PHONE);
     };  
   };
 });

@@ -12,6 +12,7 @@ module.exports = {
     GET_CORRECT_PHONE: 'Укажите номер.',
     WE_WILL_CALL: 'Спасибо за заявку, мы Вам скоро перезвоним. :)',
     WANT_RESTART: 'Хотите начать сначала? :)',
+    GOOD_DAY: 'Хорошего дня!',
     WANT_NOT_WANT: ['Хочу', 'Не хочу'],
     YES_NOT: ['Да', 'Нет'],
     CATEGORIES: [
