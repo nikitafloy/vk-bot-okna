@@ -21,6 +21,11 @@ debug@=3.1.0:
   dependencies:
     ms "2.0.0"
 
+double-ended-queue@^2.1.0-0:
+  version "2.1.0-0"
+  resolved "https://registry.yarnpkg.com/double-ended-queue/-/double-ended-queue-2.1.0-0.tgz#103d3527fd31528f40188130c841efdd78264e5c"
+  integrity sha1-ED01J/0xUo9AGIEwyEHv3XgmTlw=
+
 follow-redirects@1.5.10:
   version "1.5.10"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.5.10.tgz#7b7a9f9aea2fdff36786a94ff643ed07f4ff5e2a"
@@ -33,6 +38,13 @@ ms@2.0.0:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
   integrity sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g=
 
+node-vk-bot-api-session-redis@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/node-vk-bot-api-session-redis/-/node-vk-bot-api-session-redis-1.0.6.tgz#81d6dc33b1daa43cae4c3c34f3bd7828e821216d"
+  integrity sha512-4CH6tYr6nztrenENy7Fy+ockpDKn6r6CRYDlt6Dq4N8TP5CmzSQq9+f5bwYdKCg/usEi6YFl4wN22AI9DQrFTQ==
+  dependencies:
+    redis "^2.8.0"
+
 node-vk-bot-api@^3.3.7:
   version "3.3.7"
   resolved "https://registry.yarnpkg.com/node-vk-bot-api/-/node-vk-bot-api-3.3.7.tgz#42571c12b2e9ca942c3dec5efb5a44979444d129"
@@ -40,7 +52,21 @@ node-vk-bot-api@^3.3.7:
   dependencies:
     axios "^0.19.2"
 
-validator@^13.1.1:
-  version "13.1.1"
-  resolved "https://registry.yarnpkg.com/validator/-/validator-13.1.1.tgz#f8811368473d2173a9d8611572b58c5783f223bf"
-  integrity sha512-8GfPiwzzRoWTg7OV1zva1KvrSemuMkv07MA9TTl91hfhe+wKrsrgVN4H2QSFd/U/FhiU3iWPYVgvbsOGwhyFWw==
+redis-commands@^1.2.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/redis-commands/-/redis-commands-1.6.0.tgz#36d4ca42ae9ed29815cdb30ad9f97982eba1ce23"
+  integrity sha512-2jnZ0IkjZxvguITjFTrGiLyzQZcTvaw8DAaCXxZq/dsHXz7KfMQ3OUJy7Tz9vnRtZRVz6VRCPDvruvU8Ts44wQ==
+
+redis-parser@^2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/redis-parser/-/redis-parser-2.6.0.tgz#52ed09dacac108f1a631c07e9b69941e7a19504b"
+  integrity sha1-Uu0J2srBCPGmMcB+m2mUHnoZUEs=
+
+redis@^2.8.0:
+  version "2.8.0"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-2.8.0.tgz#202288e3f58c49f6079d97af7a10e1303ae14b02"
+  integrity sha512-M1OkonEQwtRmZv4tEWF2VgpG0JWJ8Fv1PhlgT5+B+uNq2cA3Rt1Yt/ryoR+vQNOQcIEgdCdfH0jr3bDpihAw1A==
+  dependencies:
+    double-ended-queue "^2.1.0-0"
+    redis-commands "^1.2.0"
+    redis-parser "^2.6.0"

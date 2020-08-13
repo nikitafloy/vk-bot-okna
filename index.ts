@@ -19,6 +19,10 @@ bot.use(session.middleware());
 // Start command with Inline-Keyboard
 const startKeyBoard = ctx => {
   ctx.session.step = null;
+  showCategories(ctx);
+};
+
+const showCategories = ctx => {
   ctx.reply(messages.ON_START, null, Markup
     .keyboard(messages.CATEGORIES, { columns: 2 })
     .inline(),
@@ -48,7 +52,7 @@ bot.on(async ctx => {
         access_token: keys.TOKEN,
       };
     
-      await api('users.get', params)
+      return await api('users.get', params)
         .catch(e => {
           console.error(e);
           ctx.reply(messages.FAIL);
@@ -59,7 +63,7 @@ bot.on(async ctx => {
           ctx.session.target = message;
           ctx.session.name = name;
           ctx.session.step = 2;
-        });  
+        }); 
     } else {
       // Есть имя и даже телефон, человек обращается повторно
       if (ctx.session.phone) {
@@ -69,23 +73,32 @@ bot.on(async ctx => {
           .inline(),
         );
         ctx.session.target = message;
+        return;
+      } else {
+        return ctx.reply(messages.GET_PHONE(ctx.session.name));
       };
     };
+    showCategories(ctx);
   } else {
     // Какой-то текст, не из категорий
 
     // Нужен этап, первый, когда мы запрашиваем номер и в конце, даем возможность вернуться в начало
     if (!ctx.session.step) {
-      return;
+      return showCategories(ctx);
     };
 
     // Актуальный номер телефона или нет
     const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
     // Да/Нет (актуальность), либо был введен номер телефона
-    if (isYesOrNot || require('validator').isMobilePhone(message)) {
+    if (isYesOrNot || message.match(/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/)) {
       // Введен номер
       if (!isYesOrNot) {
         if (ctx.session.step !== 2) {
+          // Ввод актуального номера
+          ctx.reply(messages.IS_CORRECT_PHONE(ctx.session.phone), null, Markup
+            .keyboard(messages.YES_NOT, { columns: 2 })
+            .inline(),
+          );
           return;
         };
 
@@ -137,9 +150,9 @@ bot.on(async ctx => {
             .then(res => console.log(messages.CONSOLE_END));
         });
     } else {
-      if (ctx.session.step !== 2) {
-        return;
-      };
+      // if (ctx.session.step !== 2) {
+      //   return;
+      // };
 
       return ctx.reply(messages.INCORRECT_PHONE);
     };  
