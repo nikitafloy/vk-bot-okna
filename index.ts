@@ -8,7 +8,6 @@ const messages = require('./messages');
 import {ctx} from './TypeScript/bot/ctx';
 import {Params} from './TypeScript/bot/Params';
 import {bot} from './TypeScript/bot/bot';
-// import {api} from './TypeScript/bot/api';
 
 // const api = (method: String, params: Params): Promise<any>;
 
