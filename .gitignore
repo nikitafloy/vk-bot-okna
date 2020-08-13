@@ -56,3 +56,7 @@ node_modules/
 keys/dev.keys.js
 admins.js
 index.js
+TypeScript/bot/api.js
+TypeScript/bot/bot.js
+TypeScript/bot/ctx.js
+TypeScript/bot/Params.js

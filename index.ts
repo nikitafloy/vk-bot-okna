@@ -4,12 +4,21 @@ const keys = require('./keys/index');
 // MSG
 const messages = require('./messages');
 
+// TypeScript
+import {ctx} from './TypeScript/bot/ctx';
+import {Params} from './TypeScript/bot/Params';
+import {bot} from './TypeScript/bot/bot';
+// import {api} from './TypeScript/bot/api';
+
+// const api = (method: String, params: Params): Promise<any>;
+
 // Markup
 const Markup = require('node-vk-bot-api/lib/markup');
 
 // Create bot
 const VkBot = require('node-vk-bot-api');
-const bot = new VkBot(keys.TOKEN);
+
+const bot: bot = new VkBot(keys.TOKEN);
 
 // Redis-Session
 const RedisSession = require('node-vk-bot-api-session-redis/lib/session');
@@ -17,25 +26,28 @@ const session = new RedisSession();
 bot.use(session.middleware());
 
 // Start command with Inline-Keyboard
-const startKeyBoard = ctx => {
+const startKeyBoard = (ctx: ctx): void => {
   ctx.session.step = null;
   showCategories(ctx);
 };
 
-const showCategories = ctx => {
-  ctx.reply(messages.ON_START, null, Markup
+const showCategories = (ctx: ctx): void => ctx.reply(
+  messages.ON_START, 
+  null,
+  Markup
     .keyboard(messages.CATEGORIES, { columns: 2 })
-    .inline(),
-  );
-};
+    .inline()
+);
 
+// Command handlers
 bot.command(messages.START_CMD, startKeyBoard);
 bot.command(messages.I_HAVE_QUESTION, startKeyBoard);
 
 // API
 const api = require('node-vk-bot-api/lib/api');
 
-bot.on(async ctx => {
+// Обработка основных команд
+bot.on(async (ctx: ctx): Promise<any> => {
   const [user_id, message]: Array<String> = [ctx.message.user_id, ctx.message.body];
   const isCategories: Boolean = messages.CATEGORIES.filter(name => name === message).length !== 0;
 
@@ -46,7 +58,7 @@ bot.on(async ctx => {
 
     // Не введено имя, человек обратился впервые
     if (!ctx.session.name) {
-      const params: Object = {
+      const params: Params = {
         user_ids: user_id,
         fields: 'first_name',
         access_token: keys.TOKEN,
@@ -95,9 +107,12 @@ bot.on(async ctx => {
       if (!isYesOrNot) {
         if (ctx.session.step !== 2) {
           // Ввод актуального номера
-          ctx.reply(messages.IS_CORRECT_PHONE(ctx.session.phone), null, Markup
-            .keyboard(messages.YES_NOT, { columns: 2 })
-            .inline(),
+          ctx.reply(
+            messages.IS_CORRECT_PHONE(ctx.session.phone), 
+            null, 
+            Markup
+              .keyboard(messages.YES_NOT, { columns: 2 })
+              .inline(),
           );
           return;
         };
@@ -135,7 +150,7 @@ bot.on(async ctx => {
           
           // Choose the method depending on the number of people
           const ids_method = admins.match(/,/) ? 'user_ids' : 'user_id';
-          const params: Object = {
+          const params: Params = {
             [ids_method]: admins,
             random_id: Math.ceil(Math.random() * 1000 + 1),
             message: messages.MSG_TO_MANAGER(url, name, phone, target),
@@ -159,7 +174,7 @@ bot.on(async ctx => {
   };
 });
 
-const closeSession = (ctx: any, msg?: String) => {
+const closeSession = (ctx: ctx, msg?: String): void => {
   ctx.session.step = null;
 
   // Оставляем клавиатуру на будущее
@@ -169,4 +184,4 @@ const closeSession = (ctx: any, msg?: String) => {
   );
 };
 
-bot.startPolling();
+bot.startPolling(error => error ? console.error(error) : null);
