@@ -10,16 +10,21 @@ import {Iparams} from './Interfaces/bot/Iparams';
 import {Ibot} from './Interfaces/bot/Ibot';
 
 // Markup
-import Markup from 'node-vk-bot-api/lib/markup';
+import * as Markup from 'node-vk-bot-api/lib/markup';
 
-// Create bot
-import VkBot from 'node-vk-bot-api';
-
+// VKBot
+import * as VkBot from 'node-vk-bot-api';
 const bot: Ibot = new VkBot(keys.TOKEN);
 
+// API
+import * as api from 'node-vk-bot-api/lib/api';
+
 // Redis-Session
-import RedisSession from 'node-vk-bot-api-session-redis/lib/session';
+import * as RedisSession from 'node-vk-bot-api-session-redis/lib/session';
+
+// Create bot
 const session = new RedisSession();
+
 bot.use(session.middleware());
 
 // Start command with Inline-Keyboard
@@ -39,9 +44,6 @@ const showCategories = (ctx: Ictx): void => ctx.reply(
 // Command handlers
 bot.command(messages.START_CMD, startKeyBoard);
 bot.command(messages.I_HAVE_QUESTION, startKeyBoard);
-
-// API
-import api from 'node-vk-bot-api/lib/api';
 
 // Обработка основных команд
 bot.on(async (ctx: Ictx): Promise<any> => {

@@ -63,3 +63,4 @@ Interfaces/processEnv/processEnv.js
 keys/dev.keys.js
 keys/prod.keys.js
 keys/index.js
+messages.js
