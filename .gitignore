@@ -53,10 +53,13 @@ node_modules/
 # dotenv environment variables file
 .env
 
-keys/dev.keys.js
 admins.js
 index.js
-TypeScript/bot/api.js
-TypeScript/bot/bot.js
-TypeScript/bot/ctx.js
-TypeScript/bot/Params.js
+Interfaces/bot/Ibot.js
+Interfaces/bot/Ictx.js
+Interfaces/bot/Iparams.js
+Interfaces/keys/Ikeys.js
+Interfaces/processEnv/processEnv.js
+keys/dev.keys.js
+keys/prod.keys.js
+keys/index.js
