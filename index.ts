@@ -9,8 +9,6 @@ import {ctx} from './TypeScript/bot/ctx';
 import {Params} from './TypeScript/bot/Params';
 import {bot} from './TypeScript/bot/bot';
 
-// const api = (method: String, params: Params): Promise<any>;
-
 // Markup
 const Markup = require('node-vk-bot-api/lib/markup');
 
@@ -76,18 +74,8 @@ bot.on(async (ctx: ctx): Promise<any> => {
           ctx.session.step = 2;
         }); 
     } else {
-      // Есть имя и даже телефон, человек обращается повторно
-      if (ctx.session.phone) {
-        // Ввод актуального номера
-        ctx.reply(messages.IS_CORRECT_PHONE(ctx.session.phone), null, Markup
-          .keyboard(messages.YES_NOT, { columns: 2 })
-          .inline(),
-        );
-        ctx.session.target = message;
-        return;
-      } else {
-        return ctx.reply(messages.GET_PHONE(ctx.session.name));
-      };
+      // Есть имя, человек обращается повторно, просим телефон
+      return ctx.reply(messages.GET_PHONE(ctx.session.name));
     };
     showCategories(ctx);
   } else {
@@ -99,41 +87,11 @@ bot.on(async (ctx: ctx): Promise<any> => {
     };
 
     // Актуальный номер телефона или нет
-    const isYesOrNot: Boolean = messages.YES_NOT.filter(name => name === message).length !== 0;
-    // Да/Нет (актуальность), либо был введен номер телефона
-    if (isYesOrNot || message.match(/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/)) {
-      // Введен номер
-      if (!isYesOrNot) {
-        if (ctx.session.step !== 2) {
-          // Ввод актуального номера
-          ctx.reply(
-            messages.IS_CORRECT_PHONE(ctx.session.phone), 
-            null, 
-            Markup
-              .keyboard(messages.YES_NOT, { columns: 2 })
-              .inline(),
-          );
-          return;
-        };
-
-        // Говорим спасибо, сохраняем номер
-        ctx.session.phone = message;
-        closeSession(ctx, messages.END);
-      } else {
-        // Актуальность номера
-        if (message === 'Нет') {
-          // Просим ввести актуальный номер
-          ctx.session.step = 2;
-          return ctx.reply(messages.GET_CORRECT_PHONE);
-        } else {
-          if (!ctx.session.phone || ctx.session.step === 2) {
-            return ctx.reply(messages.GET_CORRECT_PHONE);
-          };
-
-          // Благодарим за номер, закрыли сессию
-          closeSession(ctx, messages.WE_WILL_CALL);
-        };
-      };
+    // Введен номер телефона
+    if (message.match(/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/)) {
+      // Благодарим за номер, закрыли сессию
+      ctx.session.phone = message;
+      closeSession(ctx, messages.WE_WILL_CALL);
 
       ctx.session.url = `https://vk.com/id${user_id}`;
 
@@ -164,10 +122,6 @@ bot.on(async (ctx: ctx): Promise<any> => {
             .then(res => console.log(messages.CONSOLE_END));
         });
     } else {
-      // if (ctx.session.step !== 2) {
-      //   return;
-      // };
-
       return ctx.reply(messages.INCORRECT_PHONE);
     };  
   };

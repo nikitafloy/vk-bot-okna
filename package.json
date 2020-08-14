@@ -11,6 +11,7 @@
   "dependencies": {
     "@types/node": "^14.0.27",
     "node-vk-bot-api": "^3.3.7",
-    "node-vk-bot-api-session-redis": "^1.0.6"
+    "node-vk-bot-api-session-redis": "^1.0.6",
+    "pm2": "^4.4.0"
   }
 }
