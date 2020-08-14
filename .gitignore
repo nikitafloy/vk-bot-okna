@@ -59,7 +59,7 @@ Interfaces/bot/Ibot.js
 Interfaces/bot/Ictx.js
 Interfaces/bot/Iparams.js
 Interfaces/keys/Ikeys.js
-Interfaces/processEnv/processEnv.js
+Interfaces/processEnv/IprocessEnv.js
 keys/dev.keys.js
 keys/dev.keys.ts
 keys/prod.keys.js
