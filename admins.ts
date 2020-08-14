@@ -1,9 +1,9 @@
 import api from 'node-vk-bot-api/lib/api';
 import keys from './keys/index';
-import {Params} from './TypeScript/bot/Params';
+import {Iparams} from './Interfaces/bot/Iparams';
 
 const getAdmins = (): Promise<String | Boolean> => {
-  const params: Params = {
+  const params: Iparams = {
     group_id: keys.GROUP_ID,
     access_token: keys.TOKEN,
     fields: 'contacts',

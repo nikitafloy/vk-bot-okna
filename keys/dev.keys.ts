@@ -1,4 +1,4 @@
-import {Ikeys} from '../TypeScript/keys/Ikeys';
+import {Ikeys} from '../Interfaces/keys/Ikeys';
 
 const keys: Ikeys = {
     GROUP_ID: 55419695,	

@@ -1,5 +1,5 @@
-import {Ikeys} from '../TypeScript/keys/Ikeys';
-import {IprocessEnv} from '../TypeScript/processEnv/IprocessEnv';
+import {Ikeys} from '../Interfaces/keys/Ikeys';
+import {IprocessEnv} from '../Interfaces/processEnv/IprocessEnv';
 
 const env: IprocessEnv = process.env;
 
