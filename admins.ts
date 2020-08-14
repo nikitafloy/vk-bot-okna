@@ -1,5 +1,5 @@
-const api = require('node-vk-bot-api/lib/api');
-const keys = require('./keys/index');
+import api from 'node-vk-bot-api/lib/api';
+import keys from './keys/index';
 import {Params} from './TypeScript/bot/Params';
 
 const getAdmins = (): Promise<String | Boolean> => {

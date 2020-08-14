@@ -1,8 +1,8 @@
 // Datas
-const keys = require('./keys/index');
+import keys from './keys/index';
 
 // MSG
-const messages = require('./messages');
+import messages from './messages';
 
 // TypeScript
 import {ctx} from './TypeScript/bot/ctx';
@@ -10,15 +10,15 @@ import {Params} from './TypeScript/bot/Params';
 import {bot} from './TypeScript/bot/bot';
 
 // Markup
-const Markup = require('node-vk-bot-api/lib/markup');
+import Markup from 'node-vk-bot-api/lib/markup';
 
 // Create bot
-const VkBot = require('node-vk-bot-api');
+import VkBot from 'node-vk-bot-api';
 
 const bot: bot = new VkBot(keys.TOKEN);
 
 // Redis-Session
-const RedisSession = require('node-vk-bot-api-session-redis/lib/session');
+import RedisSession from 'node-vk-bot-api-session-redis/lib/session';
 const session = new RedisSession();
 bot.use(session.middleware());
 
@@ -41,7 +41,7 @@ bot.command(messages.START_CMD, startKeyBoard);
 bot.command(messages.I_HAVE_QUESTION, startKeyBoard);
 
 // API
-const api = require('node-vk-bot-api/lib/api');
+import api from 'node-vk-bot-api/lib/api';
 
 // Обработка основных команд
 bot.on(async (ctx: ctx): Promise<any> => {
