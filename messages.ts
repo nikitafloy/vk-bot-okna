@@ -14,12 +14,12 @@ export default {
     ON_START: 'Что Вас интересует?',
     CONSOLE_END: 'Заявка отправлена',
     INCORRECT_PHONE: 'Введите корректный номер телефона.',
-    GET_PHONE: (name: string) => `Спасибо, ${name}. Оставьте Ваш номер телефона для связи. :)`,
-    MSG_TO_MANAGER: (url: string, name: string, phone: string, target: string) => `Новая заявка от ${url}: ${name}, ${phone}; Интересуется: ${target}`,
+    GET_PHONE: (name: String) => `Спасибо, ${name}. Оставьте Ваш номер телефона для связи. :)`,
+    MSG_TO_MANAGER: (url: String, name: String, phone: String, target: String) => `Новая заявка от ${url}: ${name}, ${phone}; Интересуется: ${target}`,
     WE_WILL_CALL: 'Спасибо за заявку, мы Вам скоро перезвоним. :)',
     I_HAVE_QUESTION: 'У меня есть вопрос',
     GOOD_DAY: 'Хорошего дня!',
 
     FAIL: 'Извините, произошла ошибка. Попробуйте еще раз.',
-    CANT_GET_NAME: (id: string) => `Не смогли получить имя пользователя, ID: ${id}`,
+    CANT_GET_NAME: (id: String) => `Не смогли получить имя пользователя, ID: ${id}`,
 };
