@@ -1,3 +1,3 @@
-export interface IprocessEnv {
+export interface IProcessEnv {
     [key: string]: any,
 };

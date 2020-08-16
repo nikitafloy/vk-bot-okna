@@ -5,9 +5,9 @@ import keys from './keys/index';
 import messages from './messages';
 
 // TypeScript
-import {Ictx} from './Interfaces/bot/Ictx';
-import {Iparams} from './Interfaces/bot/Iparams';
-import {Ibot} from './Interfaces/bot/Ibot';
+import {ICtx} from './Interfaces/bot/Ictx';
+import {IParams} from './Interfaces/bot/Iparams';
+import {IBot} from './Interfaces/bot/Ibot';
 
 // Get VK Group Admins
 import getAdmins from './admins';
@@ -17,7 +17,7 @@ import * as Markup from 'node-vk-bot-api/lib/markup';
 
 // VKBot
 import * as VkBot from 'node-vk-bot-api';
-const bot: Ibot = new VkBot(keys.TOKEN);
+const bot: IBot = new VkBot(keys.TOKEN);
 
 // API
 import * as api from 'node-vk-bot-api/lib/api';
@@ -31,12 +31,12 @@ const session = new RedisSession();
 bot.use(session.middleware());
 
 // Start command with Inline-Keyboard
-const startKeyBoard = (ctx: Ictx): void => {
+const startKeyBoard = (ctx: ICtx): void => {
   ctx.session.step = null;
   showCategories(ctx);
 };
 
-const showCategories = (ctx: Ictx): void => ctx.reply(
+const showCategories = (ctx: ICtx): void => ctx.reply(
   messages.ON_START, null,
   Markup
     .keyboard(messages.CATEGORIES, { columns: 2 })
@@ -48,7 +48,7 @@ bot.command(messages.START_CMD, startKeyBoard);
 bot.command(messages.I_HAVE_QUESTION, startKeyBoard);
 
 // Обработка основных команд
-bot.on(async (ctx: Ictx): Promise<any> => {
+bot.on(async (ctx: ICtx): Promise<any> => {
   const [user_id, message]: Array<String> = [ctx.message.user_id, ctx.message.body];
   const isCategories: Boolean = messages.CATEGORIES.filter(name => name === message).length !== 0;
 
@@ -58,9 +58,9 @@ bot.on(async (ctx: Ictx): Promise<any> => {
     ctx.session.step = 1;
 
     // Не введено имя, человек обратился впервые
-    if (!ctx.session.name) {    
+    if (!ctx.session.name) {
       try {
-        const params: Iparams = {
+        const params: IParams = {
           user_ids: user_id,
           fields: 'first_name',
           access_token: keys.TOKEN,
@@ -109,7 +109,7 @@ bot.on(async (ctx: Ictx): Promise<any> => {
         if (admins) {
           // Choose the method depending on the number of people
           const ids_method = typeof admins === 'string' && admins.match(/,/) ? 'user_ids' : 'user_id';
-          const params: Iparams = {
+          const params: IParams = {
             [ids_method]: admins,
             random_id: Math.ceil(Math.random() * 1000 + 1),
             message: messages.MSG_TO_MANAGER(url, name, phone, target),
@@ -136,7 +136,7 @@ bot.on(async (ctx: Ictx): Promise<any> => {
   };
 });
 
-const closeSession = (ctx: Ictx, msg?: String): void => {
+const closeSession = (ctx: ICtx, msg?: String): void => {
   ctx.session.step = null;
 
   // Оставляем клавиатуру на будущее

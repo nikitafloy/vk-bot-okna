@@ -1,9 +1,9 @@
-import {Ikeys} from '../Interfaces/keys/Ikeys';
-import {IprocessEnv} from '../Interfaces/processEnv/IprocessEnv';
+import {IKeys} from '../Interfaces/keys/Ikeys';
+import {IProcessEnv} from '../Interfaces/processEnv/IprocessEnv';
 
-const env: IprocessEnv = process.env;
+const env: IProcessEnv = process.env;
 
-const keys: Ikeys = {
+const keys: IKeys = {
     GROUP_ID: env.GROUP_ID,
     TOKEN: env.TOKEN,
 };

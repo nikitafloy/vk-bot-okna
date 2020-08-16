@@ -1,4 +1,4 @@
-export interface Iparams {
+export interface IParams {
     user_ids?: String,
     user_id?: String,
     group_id?: Number,

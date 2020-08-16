@@ -1,4 +1,4 @@
-export interface Ictx {
+export interface ICtx {
     reply: (message: String, attachment?: String, keyboard?: String | undefined, sticker?: number, randomId?: number | Date) => void,
     session: {
       step: number | undefined,
