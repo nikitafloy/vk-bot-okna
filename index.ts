@@ -5,12 +5,9 @@ import keys from './keys/index';
 import messages from './messages';
 
 // TypeScript
-import {ICtx} from './Interfaces/bot/Ictx';
-import {IParams} from './Interfaces/bot/Iparams';
-import {IBot} from './Interfaces/bot/Ibot';
-
-// Get VK Group Admins
-import getAdmins from './admins';
+import {ICtx} from './Interfaces/bot/ICtx';
+import {IParams} from './Interfaces/bot/IParams';
+import {IBot} from './Interfaces/bot/IBot';
 
 // Markup
 import * as Markup from 'node-vk-bot-api/lib/markup';
@@ -26,7 +23,13 @@ import * as api from 'node-vk-bot-api/lib/api';
 import * as RedisSession from 'node-vk-bot-api-session-redis/lib/session';
 
 // Create bot
-const session = new RedisSession();
+const session = new RedisSession({
+  host: keys.REDIS_HOST,
+  port: keys.REDIS_PORT,
+  user: keys.REDIS_USER,
+  password: keys.REDIS_PASSWORD,
+  url: keys.REDIS_URL,
+});
 
 bot.use(session.middleware());
 
@@ -101,34 +104,23 @@ bot.on(async (ctx: ICtx): Promise<any> => {
       ctx.session.url = `https://vk.com/id${user_id}`;
       closeSession(ctx, messages.WE_WILL_CALL);
 
-      // Get Admins
-      try {
-        const admins = await getAdmins();
-        const {url, name, phone, target} = ctx.session;
+      const {url, name, phone, target} = ctx.session;
 
-        if (admins) {
-          // Choose the method depending on the number of people
-          const ids_method = typeof admins === 'string' && admins.match(/,/) ? 'user_ids' : 'user_id';
-          const params: IParams = {
-            [ids_method]: admins,
-            random_id: Math.ceil(Math.random() * 1000 + 1),
-            message: messages.MSG_TO_MANAGER(url, name, phone, target),
-            access_token: keys.TOKEN,
-          };
-    
-          try {
-            if (await api('messages.send', params)){
-              console.log(messages.CONSOLE_END);
-            };
-          } catch (e) {
-            console.error(e);
-            ctx.reply(messages.FAIL);
-          };
-        } else {
-          console.log(messages.CANT_GET_ADMINS(phone, url))
+      // Choose the method depending on the number of people
+      const params: IParams = {
+        'user_id': keys.ADMIN_ID,
+        random_id: Math.ceil(Math.random() * 1000 + 1),
+        message: messages.MSG_TO_MANAGER(url, name, phone, target),
+        access_token: keys.TOKEN,
+      };
+
+      try {
+        if (await api('messages.send', params)){
+          console.log(messages.CONSOLE_END);
         };
       } catch (e) {
         console.error(e);
+        ctx.reply(messages.FAIL);
       };
     } else {
       return ctx.reply(messages.INCORRECT_PHONE);

@@ -53,13 +53,12 @@ node_modules/
 # dotenv environment variables file
 .env
 
-admins.js
 index.js
-Interfaces/bot/Ibot.js
-Interfaces/bot/Ictx.js
-Interfaces/bot/Iparams.js
-Interfaces/keys/Ikeys.js
-Interfaces/processEnv/IprocessEnv.js
+Interfaces/bot/IBot.js
+Interfaces/bot/ICtx.js
+Interfaces/bot/IParams.js
+Interfaces/keys/IKeys.js
+Interfaces/processEnv/IProcessEnv.js
 keys/dev.keys.js
 keys/dev.keys.ts
 keys/prod.keys.js

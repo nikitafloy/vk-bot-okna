@@ -1,4 +1,4 @@
-import {ICtx} from './Ictx';
+import {ICtx} from './ICtx';
 export interface IBot {
     use?: (func: () => Object) => Object,
     command?: (cmd: String, func: (ctx: ICtx) => void) => void,

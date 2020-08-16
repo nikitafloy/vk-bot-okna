@@ -3,15 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^14.0.27",
     "node-vk-bot-api": "^3.3.7",
     "node-vk-bot-api-session-redis": "^1.0.6",
-    "pm2": "^4.4.0"
+    "nodemon": "^2.0.4",
+    "pm2": "^4.4.0",
+    "redis-cli": "^1.4.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "scripts": {
+    "start": "nodemon index.js"
   }
 }
